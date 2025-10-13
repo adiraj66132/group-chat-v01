@@ -203,7 +203,7 @@ export default function Admin() {
     }
 
     try {
-      const { error } = await supabase.rpc('create_room', {
+      const { error } = await supabase.rpc('create_room' as any, {
         room_name: newRoomName,
         room_password: newRoomPassword
       });
