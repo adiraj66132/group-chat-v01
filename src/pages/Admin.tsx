@@ -75,11 +75,35 @@ export default function Admin() {
     }
   };
 
+  const setupAdmin = async () => {
+    try {
+      const response = await fetch(
+        `${import.meta.env.VITE_SUPABASE_URL}/functions/v1/setup-admin`,
+        {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      
+      if (!response.ok) {
+        const error = await response.json();
+        throw new Error(error.error || 'Setup failed');
+      }
+    } catch (error) {
+      console.error('Admin setup error:', error);
+    }
+  };
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
 
     try {
+      // Ensure admin user exists
+      await setupAdmin();
+
       const { data, error } = await supabase.auth.signInWithPassword({
         email,
         password,
