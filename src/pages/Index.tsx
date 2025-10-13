@@ -1,4 +1,4 @@
-import { useState, useEffect, useRef } from "react";
+import { useEffect, useState, useRef } from "react";
 import { supabase } from "@/integrations/supabase/client";
 import { ChatMessage } from "@/components/ChatMessage";
 import { ChatInput } from "@/components/ChatInput";
@@ -9,6 +9,7 @@ import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { Label } from "@/components/ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
+import { MessageCircle } from "lucide-react";
 
 interface Message {
   id: string;
@@ -23,9 +24,9 @@ interface Room {
   name: string;
 }
 
-export default function Index() {
+const Index = () => {
   const [messages, setMessages] = useState<Message[]>([]);
-  const [username, setUsername] = useState("");
+  const [username, setUsername] = useState<string>("");
   const [isLoading, setIsLoading] = useState(true);
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string>("");
@@ -201,7 +202,7 @@ export default function Index() {
 
   if (!isAuthenticated) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] p-4">
         <Card className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Welcome to Group Chat</h1>
           <p className="text-center text-muted-foreground mb-6">
@@ -222,7 +223,7 @@ export default function Index() {
 
   if (!isRoomUnlocked) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-primary to-accent p-4">
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-[hsl(var(--primary))] to-[hsl(var(--accent))] p-4">
         <Card className="w-full max-w-md p-8">
           <h1 className="text-2xl font-bold text-center mb-6">Enter Chat Room</h1>
           <form onSubmit={handleRoomUnlock} className="space-y-4">
@@ -262,58 +263,55 @@ export default function Index() {
   }
 
   return (
-    <div className="min-h-screen flex flex-col bg-gradient-to-br from-primary to-accent">
-      <div className="flex-1 flex flex-col max-w-4xl w-full mx-auto p-4">
-        <div className="bg-white/10 backdrop-blur-sm rounded-t-lg p-4 shadow-lg">
-          <div className="flex justify-between items-center">
-            <h1 className="text-2xl font-bold text-white">
+    <div className="flex flex-col h-screen bg-background">
+      {/* Header */}
+      <header className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] text-white p-4 shadow-lg">
+        <div className="flex items-center gap-3 max-w-6xl mx-auto">
+          <MessageCircle className="h-6 w-6" />
+          <div>
+            <h1 className="text-xl font-bold">
               {rooms.find(r => r.id === selectedRoomId)?.name || 'Group Chat'}
             </h1>
-            {username && (
-              <span className="text-white/90 text-sm">
-                Chatting as: <span className="font-semibold">{username}</span>
-              </span>
-            )}
+            <p className="text-sm text-white/80">
+              {username ? `Chatting as ${username}` : "Real-time messaging"}
+            </p>
           </div>
         </div>
+      </header>
 
-        <div className="flex-1 bg-white rounded-b-lg shadow-lg p-4 overflow-y-auto mb-4">
-          {isLoading ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">Loading messages...</p>
-            </div>
-          ) : messages.length === 0 ? (
-            <div className="flex items-center justify-center h-full">
-              <p className="text-muted-foreground">
-                No messages yet. Be the first to say something!
-              </p>
-            </div>
-          ) : (
-            <div className="space-y-4">
-              {messages.map((msg) => (
-                <ChatMessage
-                  key={msg.id}
-                  username={msg.username}
-                  message={msg.message}
-                  timestamp={msg.created_at}
-                  isOwnMessage={msg.username === username}
-                />
-              ))}
-              <div ref={messagesEndRef} />
-            </div>
-          )}
-        </div>
-
-        <ChatInput
-          onSendMessage={handleSendMessage}
-          disabled={!username}
-        />
+      {/* Messages */}
+      <div className="flex-1 overflow-y-auto p-4 space-y-4 max-w-6xl w-full mx-auto">
+        {isLoading ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">Loading messages...</p>
+          </div>
+        ) : messages.length === 0 ? (
+          <div className="flex items-center justify-center h-full">
+            <p className="text-muted-foreground">No messages yet. Start the conversation!</p>
+          </div>
+        ) : (
+          messages.map((msg) => (
+            <ChatMessage
+              key={msg.id}
+              username={msg.username}
+              message={msg.message}
+              timestamp={msg.created_at}
+              isOwnMessage={msg.username === username}
+            />
+          ))
+        )}
+        <div ref={messagesEndRef} />
       </div>
 
-      <UsernameDialog
-        open={!username}
-        onUsernameSet={handleUsernameSet}
-      />
+      {/* Input */}
+      <div className="max-w-6xl w-full mx-auto">
+        <ChatInput onSendMessage={handleSendMessage} disabled={!username} />
+      </div>
+
+      {/* Username Dialog */}
+      <UsernameDialog open={!username} onUsernameSet={handleUsernameSet} />
     </div>
   );
-}
+};
+
+export default Index;
