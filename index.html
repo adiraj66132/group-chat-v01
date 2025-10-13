@@ -1,4 +1,4 @@
-<!doctype html>
+<!--<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
@@ -10,4 +10,228 @@
     <div id="root"></div>
     <script type="module" src="/src/main.tsx"></script>
   </body>
+</html>
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Chat App — Maintenance</title>
+  <style>
+    :root{
+      --bg:#ffffff; /* white */
+      --primary:#0b67ff; /* vivid blue */
+      --primary-600:#0757d6;
+      --muted:#f5f8ff;
+      --ink:#0b1826;
+      --glass: rgba(11,103,255,0.08);
+      --radius:14px;
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      -webkit-font-smoothing:antialiased; -moz-osx-font-smoothing:grayscale;
+    }
+
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      background: linear-gradient(180deg,var(--muted),#ffffff 60%);
+      color:var(--ink);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+
+    .card{
+      width:min(920px,96%);
+      background:linear-gradient(180deg, rgba(255,255,255,0.9), rgba(250,252,255,0.95));
+      border-radius:var(--radius);
+      box-shadow: 0 10px 30px rgba(11,24,40,0.08);
+      border:1px solid rgba(11,103,255,0.06);
+      display:grid;
+      grid-template-columns: 1fr 420px;
+      overflow:hidden;
+    }
+
+    @media (max-width:880px){
+      .card{grid-template-columns:1fr;}
+      .right{order:2}
+    }
+
+    .left{
+      padding:42px 48px;
+    }
+
+    .brand{
+      display:flex;gap:12px;align-items:center;margin-bottom:18px
+    }
+    .logo{
+      width:54px;height:54px;border-radius:12px;background:linear-gradient(135deg,var(--primary),var(--primary-600));
+      display:grid;place-items:center;color:white;font-weight:700;font-size:20px;box-shadow:0 6px 18px rgba(11,103,255,0.18);
+    }
+    h1{margin:0;font-size:28px}
+    p.lead{margin:12px 0 22px;color:#304155}
+
+    .status{
+      display:flex;gap:14px;align-items:center;margin:18px 0 28px;
+    }
+    .dot{width:14px;height:14px;border-radius:50%;background:var(--primary);box-shadow:0 6px 18px rgba(11,103,255,0.14)}
+    .small{font-size:14px;color:#334155}
+
+    .actions{display:flex;gap:12px;flex-wrap:wrap}
+    .btn{appearance:none;padding:10px 16px;border-radius:10px;border:0;font-weight:600;cursor:pointer}
+    .btn-primary{background:var(--primary);color:white;box-shadow:0 6px 18px rgba(11,103,255,0.12)}
+    .btn-ghost{background:transparent;border:1px solid rgba(11,103,255,0.12);color:var(--primary)}
+
+    .note{margin-top:18px;font-size:13px;color:#52657a}
+
+    /* Right column */
+    .right{
+      background:linear-gradient(180deg, rgba(11,103,255,0.03), rgba(11,103,255,0.02));
+      padding:30px 26px;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:18px;border-left:1px solid rgba(11,103,255,0.04)
+    }
+
+    .illustration{
+      width:100%;max-width:300px;height:200px;border-radius:12px;background:linear-gradient(135deg, rgba(11,103,255,0.06), rgba(11,103,255,0.02));display:grid;place-items:center;
+      box-shadow: inset 0 1px 0 rgba(255,255,255,0.6);
+    }
+
+    /* Loader */
+    .loader{display:flex;gap:10px;align-items:center}
+    .ring{width:14px;height:14px;border-radius:50%;background:var(--primary);opacity:0.9;animation:pop 1s infinite}
+    .ring:nth-child(2){animation-delay:0.12s}
+    .ring:nth-child(3){animation-delay:0.24s}
+    @keyframes pop{0%{transform:translateY(0);opacity:0.8}50%{transform:translateY(-10px);opacity:1}100%{transform:translateY(0);opacity:0.8}}
+
+    /* countdown box */
+    .countdown{display:flex;gap:10px}
+    .timebox{background:rgba(255,255,255,0.8);border-radius:10px;padding:12px 14px;text-align:center;min-width:68px;border:1px solid rgba(11,103,255,0.06)}
+    .timebox strong{display:block;font-size:18px}
+    .timebox small{display:block;margin-top:4px;color:#627587}
+
+    footer{padding:18px 26px;text-align:center;font-size:13px;color:#6b7d8f}
+
+    .sr-only{position:absolute;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+  </style>
+</head>
+<body>
+  <main class="card" role="main" aria-labelledby="maint-title">
+    <section class="left">
+      <div class="brand">
+        <div class="logo" aria-hidden="true">CA</div>
+        <div>
+          <div style="font-weight:700">ChatApp (Dev Team)</div>
+          <div style="font-size:13px;color:#567">Scheduled maintenance</div>
+        </div>
+      </div>
+
+      <h1 id="maint-title">We'll be back soon</h1>
+      <p class="lead">We're performing scheduled maintenance to make Chat App faster and more reliable. You won't be able to send or receive messages for a short time.</p>
+
+      <div class="status">
+        <div class="dot" aria-hidden="true"></div>
+        <div class="small">Maintenance in progress — services temporarily paused</div>
+      </div>
+
+      <div class="loader" aria-hidden="true">
+        <div class="ring"></div>
+        <div class="ring"></div>
+        <div class="ring"></div>
+      </div>
+
+      <div style="margin-top:22px">
+        <div style="font-size:13px;color:#405">Estimated time remaining</div>
+        <div class="countdown" role="timer" aria-live="polite" aria-atomic="true" id="countdown">
+          <div class="timebox"><strong id="hours">--</strong><small>Hrs</small></div>
+          <div class="timebox"><strong id="mins">--</strong><small>Mins</small></div>
+          <div class="timebox"><strong id="secs">--</strong><small>Secs</small></div>
+        </div>
+      </div>
+
+      <div class="actions" style="margin-top:22px">
+        <button class="btn btn-primary" id="refreshBtn">Check Status</button>
+        <button class="btn btn-ghost" id="supportBtn">Contact Support</button>
+      </div>
+
+      <p class="note">We're sorry for the inconvenience. Follow us on Twitter or check system updates for progress. If you need urgent help, contact support.</p>
+    </section>
+
+    <aside class="right" aria-label="maintenance illustration">
+      <div class="illustration" role="img" aria-label="maintenance illustration">
+        <!-- simple SVG illustration -->
+        <svg width="220" height="140" viewBox="0 0 220 140" fill="none" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+          <rect x="6" y="6" width="208" height="128" rx="10" fill="white" opacity="0.6"/>
+          <g transform="translate(20,22)">
+            <circle cx="36" cy="36" r="34" fill="url(#g)"/>
+            <rect x="84" y="8" width="96" height="14" rx="6" fill="#e9f0ff"/>
+            <rect x="84" y="32" width="64" height="14" rx="6" fill="#e9f0ff"/>
+            <g transform="translate(64,80)">
+              <rect width="92" height="10" rx="5" fill="#f6f9ff"/>
+            </g>
+          </g>
+          <defs>
+            <linearGradient id="g" x1="0" x2="1">
+              <stop offset="0" stop-color="#0b67ff" stop-opacity="1"/>
+              <stop offset="1" stop-color="#0b67ff" stop-opacity="0.6"/>
+            </linearGradient>
+          </defs>
+        </svg>
+      </div>
+
+      <div style="text-align:center;max-width:320px">
+        <h3 style="margin:6px 0 0">Maintenance in progress</h3>
+        <p style="margin:8px 0 0;color:#47596f;font-size:14px">Thanks for your patience — we're applying improvements and will be back online shortly.</p>
+      </div>
+
+      <div style="width:100%;display:flex;gap:8px;justify-content:center;margin-top:8px">
+        <a href="#" class="btn btn-ghost" style="text-decoration:none">Status page</a>
+        <a href="#" class="btn" style="background:transparent;border:1px solid rgba(11,103,255,0.08);color:var(--primary);text-decoration:none">Twitter</a>
+      </div>
+    </aside>
+
+    <footer style="grid-column:1/-1">
+      Need assistance? Email <a href="mailto:support@chatapp.example">support@chatapp.example</a> • Last updated: <time id="updated">--</time>
+    </footer>
+  </main>
+
+  <script>
+    // Simple countdown (example: 15 minutes) — modify `targetSeconds` as needed
+    (function(){
+      const targetSeconds = 15 * 60; // 15 minutes
+      const startedAt = Date.now();
+      const endsAt = startedAt + targetSeconds*1000;
+      const hours = document.getElementById('hours');
+      const mins = document.getElementById('mins');
+      const secs = document.getElementById('secs');
+      const updated = document.getElementById('updated');
+      function tick(){
+        const now = Date.now();
+        let diff = Math.max(0, Math.floor((endsAt - now)/1000));
+        const h = Math.floor(diff/3600); diff%=3600;
+        const m = Math.floor(diff/60); const s = diff%60;
+        hours.textContent = String(h).padStart(2,'0');
+        mins.textContent = String(m).padStart(2,'0');
+        secs.textContent = String(s).padStart(2,'0');
+        updated.textContent = new Date().toLocaleString();
+        if(endsAt - now <=0){
+          clearInterval(ti);
+          document.getElementById('refreshBtn').textContent = 'Refresh';
+        }
+      }
+      tick();
+      const ti = setInterval(tick,1000);
+
+      // Buttons
+      document.getElementById('supportBtn').addEventListener('click',()=>{
+        window.location.href = 'mailto:support@chatapp.example?subject=Maintenance%20help';
+      });
+      document.getElementById('refreshBtn').addEventListener('click',()=>{
+        // simple status check simulation — in real life call your status API
+        const now = new Date();
+        alert('Status checked — last updated: '+ now.toLocaleTimeString());
+      });
+    })();
+  </script>
+</body>
 </html>
