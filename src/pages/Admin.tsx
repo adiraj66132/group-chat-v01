@@ -4,13 +4,21 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Card } from "@/components/ui/card";
 import { useToast } from "@/hooks/use-toast";
-import { Trash2, LogOut, Shield } from "lucide-react";
+import { Trash2, LogOut, Shield, Plus } from "lucide-react";
 import { useNavigate } from "react-router-dom";
+import { Label } from "@/components/ui/label";
 
 interface Message {
   id: string;
   username: string;
   message: string;
+  created_at: string;
+  room_id: string;
+}
+
+interface Room {
+  id: string;
+  name: string;
   created_at: string;
 }
 
@@ -21,6 +29,9 @@ export default function Admin() {
   const [isAdmin, setIsAdmin] = useState(false);
   const [loading, setLoading] = useState(true);
   const [messages, setMessages] = useState<Message[]>([]);
+  const [rooms, setRooms] = useState<Room[]>([]);
+  const [newRoomName, setNewRoomName] = useState("");
+  const [newRoomPassword, setNewRoomPassword] = useState("");
   const { toast } = useToast();
   const navigate = useNavigate();
 
@@ -31,6 +42,7 @@ export default function Admin() {
   useEffect(() => {
     if (isAuthenticated && isAdmin) {
       fetchMessages();
+      fetchRooms();
       subscribeToMessages();
     }
   }, [isAuthenticated, isAdmin]);
@@ -160,6 +172,84 @@ export default function Admin() {
     setMessages(data || []);
   };
 
+  const fetchRooms = async () => {
+    const { data, error } = await supabase
+      .from("rooms")
+      .select("*")
+      .order("created_at", { ascending: false });
+
+    if (error) {
+      toast({
+        title: "Error",
+        description: "Failed to fetch rooms.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setRooms(data || []);
+  };
+
+  const handleCreateRoom = async (e: React.FormEvent) => {
+    e.preventDefault();
+    
+    if (!newRoomName || !newRoomPassword) {
+      toast({
+        title: "Error",
+        description: "Please enter both room name and password.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase.rpc('create_room', {
+        room_name: newRoomName,
+        room_password: newRoomPassword
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Room created",
+        description: `Room "${newRoomName}" has been created successfully.`,
+      });
+
+      setNewRoomName("");
+      setNewRoomPassword("");
+      fetchRooms();
+    } catch (error: any) {
+      toast({
+        title: "Failed to create room",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleDeleteRoom = async (id: string, name: string) => {
+    try {
+      const { error } = await supabase
+        .from("rooms")
+        .delete()
+        .eq("id", id);
+
+      if (error) throw error;
+
+      toast({
+        title: "Room deleted",
+        description: `Room "${name}" has been deleted successfully.`,
+      });
+      fetchRooms();
+    } catch (error: any) {
+      toast({
+        title: "Delete failed",
+        description: error.message,
+        variant: "destructive",
+      });
+    }
+  };
+
   const subscribeToMessages = () => {
     const channel = supabase
       .channel("admin-messages")
@@ -268,45 +358,102 @@ export default function Admin() {
           </Button>
         </div>
 
-        <Card className="p-6">
-          <div className="flex justify-between items-center mb-4">
-            <h2 className="text-xl font-semibold">All Messages ({messages.length})</h2>
-            <Button variant="outline" onClick={fetchMessages}>
-              Refresh
-            </Button>
-          </div>
+        <div className="grid gap-6 md:grid-cols-2">
+          <Card className="p-6">
+            <h2 className="text-xl font-semibold mb-4">Manage Rooms</h2>
+            
+            <form onSubmit={handleCreateRoom} className="space-y-4 mb-6">
+              <div>
+                <Label htmlFor="roomName">Room Name</Label>
+                <Input
+                  id="roomName"
+                  type="text"
+                  placeholder="e.g., room_1"
+                  value={newRoomName}
+                  onChange={(e) => setNewRoomName(e.target.value)}
+                />
+              </div>
+              <div>
+                <Label htmlFor="roomPassword">Room Password</Label>
+                <Input
+                  id="roomPassword"
+                  type="password"
+                  placeholder="Enter password"
+                  value={newRoomPassword}
+                  onChange={(e) => setNewRoomPassword(e.target.value)}
+                />
+              </div>
+              <Button type="submit" className="w-full">
+                <Plus className="w-4 h-4 mr-2" />
+                Create Room
+              </Button>
+            </form>
 
-          <div className="space-y-2 max-h-[70vh] overflow-y-auto">
-            {messages.length === 0 ? (
-              <p className="text-center text-muted-foreground py-8">No messages yet</p>
-            ) : (
-              messages.map((msg) => (
-                <div
-                  key={msg.id}
-                  className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors"
-                >
-                  <div className="flex-1">
-                    <div className="flex items-center gap-2 mb-1">
-                      <span className="font-semibold text-primary">{msg.username}</span>
-                      <span className="text-xs text-muted-foreground">
-                        {new Date(msg.created_at).toLocaleString()}
-                      </span>
-                    </div>
-                    <p className="text-sm break-words">{msg.message}</p>
-                  </div>
-                  <Button
-                    variant="ghost"
-                    size="icon"
-                    onClick={() => handleDelete(msg.id)}
-                    className="text-destructive hover:text-destructive hover:bg-destructive/10"
+            <div className="space-y-2">
+              <h3 className="font-medium">Existing Rooms ({rooms.length})</h3>
+              {rooms.length === 0 ? (
+                <p className="text-sm text-muted-foreground">No rooms yet</p>
+              ) : (
+                rooms.map((room) => (
+                  <div
+                    key={room.id}
+                    className="flex items-center justify-between p-3 border rounded-lg"
                   >
-                    <Trash2 className="w-4 h-4" />
-                  </Button>
-                </div>
-              ))
-            )}
-          </div>
-        </Card>
+                    <span className="font-medium">{room.name}</span>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDeleteRoom(room.id, room.name)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+
+          <Card className="p-6">
+            <div className="flex justify-between items-center mb-4">
+              <h2 className="text-xl font-semibold">All Messages ({messages.length})</h2>
+              <Button variant="outline" onClick={fetchMessages}>
+                Refresh
+              </Button>
+            </div>
+
+            <div className="space-y-2 max-h-[70vh] overflow-y-auto">
+              {messages.length === 0 ? (
+                <p className="text-center text-muted-foreground py-8">No messages yet</p>
+              ) : (
+                messages.map((msg) => (
+                  <div
+                    key={msg.id}
+                    className="flex items-start justify-between p-4 border rounded-lg hover:bg-accent/5 transition-colors"
+                  >
+                    <div className="flex-1">
+                      <div className="flex items-center gap-2 mb-1">
+                        <span className="font-semibold text-primary">{msg.username}</span>
+                        <span className="text-xs text-muted-foreground">
+                          {new Date(msg.created_at).toLocaleString()}
+                        </span>
+                      </div>
+                      <p className="text-sm break-words">{msg.message}</p>
+                    </div>
+                    <Button
+                      variant="ghost"
+                      size="icon"
+                      onClick={() => handleDelete(msg.id)}
+                      className="text-destructive hover:text-destructive hover:bg-destructive/10"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                    </Button>
+                  </div>
+                ))
+              )}
+            </div>
+          </Card>
+        </div>
       </div>
     </div>
   );

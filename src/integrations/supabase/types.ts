@@ -19,19 +19,51 @@ export type Database = {
           created_at: string
           id: string
           message: string
+          room_id: string | null
           username: string
         }
         Insert: {
           created_at?: string
           id?: string
           message: string
+          room_id?: string | null
           username: string
         }
         Update: {
           created_at?: string
           id?: string
           message?: string
+          room_id?: string | null
           username?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "messages_room_id_fkey"
+            columns: ["room_id"]
+            isOneToOne: false
+            referencedRelation: "rooms"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      rooms: {
+        Row: {
+          created_at: string
+          id: string
+          name: string
+          password_hash: string
+        }
+        Insert: {
+          created_at?: string
+          id?: string
+          name: string
+          password_hash: string
+        }
+        Update: {
+          created_at?: string
+          id?: string
+          name?: string
+          password_hash?: string
         }
         Relationships: []
       }
