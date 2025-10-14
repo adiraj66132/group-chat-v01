@@ -31,6 +31,7 @@ const Index = () => {
   const [rooms, setRooms] = useState<Room[]>([]);
   const [selectedRoomId, setSelectedRoomId] = useState<string>("");
   const [roomPassword, setRoomPassword] = useState("");
+  const [roomUsername, setRoomUsername] = useState("");
   const [isRoomUnlocked, setIsRoomUnlocked] = useState(false);
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const messagesEndRef = useRef<HTMLDivElement>(null);
@@ -161,10 +162,10 @@ const Index = () => {
   const handleRoomUnlock = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!selectedRoomId || !roomPassword) {
+    if (!selectedRoomId || !roomPassword || !roomUsername.trim()) {
       toast({
         title: "Error",
-        description: "Please select a room and enter password.",
+        description: "Please fill in all fields.",
         variant: "destructive",
       });
       return;
@@ -179,10 +180,11 @@ const Index = () => {
       if (error) throw error;
 
       if (data) {
+        setUsername(roomUsername.trim());
         setIsRoomUnlocked(true);
         toast({
           title: "Success",
-          description: "Room unlocked successfully!",
+          description: `Welcome ${roomUsername}! Room unlocked successfully!`,
         });
       } else {
         toast({
@@ -241,6 +243,17 @@ const Index = () => {
                   ))}
                 </SelectContent>
               </Select>
+            </div>
+            <div>
+              <Label htmlFor="username">Your Username</Label>
+              <Input
+                id="username"
+                type="text"
+                placeholder="Choose your username"
+                value={roomUsername}
+                onChange={(e) => setRoomUsername(e.target.value)}
+                required
+              />
             </div>
             <div>
               <Label htmlFor="password">Room Password</Label>
@@ -325,9 +338,6 @@ const Index = () => {
       <div className="max-w-6xl w-full mx-auto">
         <ChatInput onSendMessage={handleSendMessage} disabled={!username} />
       </div>
-
-      {/* Username Dialog */}
-      <UsernameDialog open={!username} onUsernameSet={handleUsernameSet} />
     </div>
   );
 };
