@@ -266,15 +266,33 @@ const Index = () => {
     <div className="flex flex-col h-screen bg-background">
       {/* Header */}
       <header className="bg-gradient-to-r from-[hsl(var(--primary))] to-[hsl(var(--secondary))] text-white p-4 shadow-lg">
-        <div className="flex items-center gap-3 max-w-6xl mx-auto">
-          <MessageCircle className="h-6 w-6" />
-          <div>
-            <h1 className="text-xl font-bold">
-              {rooms.find(r => r.id === selectedRoomId)?.name || 'Group Chat'}
-            </h1>
-            <p className="text-sm text-white/80">
-              {username ? `Chatting as ${username}` : "Real-time messaging"}
-            </p>
+        <div className="flex items-center justify-between max-w-6xl mx-auto">
+          <div className="flex items-center gap-3">
+            <MessageCircle className="h-6 w-6" />
+            <div>
+              <h1 className="text-xl font-bold">
+                {rooms.find(r => r.id === selectedRoomId)?.name || 'Group Chat'}
+              </h1>
+              <p className="text-sm text-white/80">
+                {username ? `Chatting as ${username}` : "Real-time messaging"}
+              </p>
+            </div>
+          </div>
+          <div className="flex gap-2">
+            <Button 
+              variant="ghost" 
+              className="text-white hover:bg-white/20"
+              onClick={() => setIsRoomUnlocked(false)}
+            >
+              Change Room
+            </Button>
+            <Button 
+              variant="ghost" 
+              className="text-white hover:bg-white/20"
+              onClick={() => window.location.href = '/admin'}
+            >
+              Admin
+            </Button>
           </div>
         </div>
       </header>

@@ -352,10 +352,15 @@ export default function Admin() {
             <Shield className="w-6 h-6 text-white" />
             <h1 className="text-2xl font-bold text-white">Admin Dashboard</h1>
           </div>
-          <Button variant="ghost" onClick={handleLogout} className="text-white">
-            <LogOut className="w-4 h-4 mr-2" />
-            Logout
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="ghost" onClick={() => navigate("/")} className="text-white">
+              Back to Chat
+            </Button>
+            <Button variant="ghost" onClick={handleLogout} className="text-white">
+              <LogOut className="w-4 h-4 mr-2" />
+              Logout
+            </Button>
+          </div>
         </div>
 
         <div className="grid gap-6 md:grid-cols-2">
